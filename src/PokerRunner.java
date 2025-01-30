@@ -26,35 +26,40 @@ public class PokerRunner {
             }
 
             // a String array where every item in the array is a line from the file
+
             String[] fileArray = fileData.split("\n");
+
 
             for (String line : fileArray) {
                 // split by space, now we have a list of String numbers
-                String[] stringNumbers = line.split(",");
+                String newLine = line.replace("|",",");
+                String [] stringNumbers = newLine.split(",");
+
 
                 // create an array of integers
-                int[] numbers = new int[stringNumbers.length];
+                int[] numbers = new int[stringNumbers.length - 1];
 
                 // convert string numbers into integers
-                for (int i = 0; i < numbers.length; i++) {
                 try {
-                    numbers[i] = Integer.parseInt(stringNumbers[i]);
+                    for (int i = 0; i < numbers.length; i++) {
+                        try {
+                            numbers[i] = Integer.parseInt(stringNumbers[i]);
+                        } catch (NumberFormatException e) {
+                            if (Objects.equals(stringNumbers[i], "Jack")) {
+                                numbers[i] = bigCards.get("Jack");
+                            }
+                            if (Objects.equals(stringNumbers[i], "Queen")) {
+                                numbers[i] = bigCards.get("Queen");
+                            }
+                            if (Objects.equals(stringNumbers[i], "King")) {
+                                numbers[i] = bigCards.get("King");
+                            }
+                            if (Objects.equals(stringNumbers[i], "Ace")) {
+                                numbers[i] = bigCards.get("Ace");
+                            }
+                        }
                     }
-                catch (NumberFormatException e) {
-                    if (Objects.equals(stringNumbers[i], "Jack")){
-                        numbers[i] = bigCards.get("Jack");
-                        }
-                    if (Objects.equals(stringNumbers[i], "Queen")){
-                        numbers[i] = bigCards.get("Queen");
-                        }
-                    if (Objects.equals(stringNumbers[i], "King")){
-                        numbers[i] = bigCards.get("King");
-                        }
-                    if (Objects.equals(stringNumbers[i], "Ace")){
-                        numbers[i] = bigCards.get("Ace");
-                        }
-                    }
-                }
+                }catch (ArrayIndexOutOfBoundsException _){}
                 System.out.println(Arrays.toString(numbers));
                 Cards a = new Cards(numbers);
                 System.out.println(a.numOfFourKind());
