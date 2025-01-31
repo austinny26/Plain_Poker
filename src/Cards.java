@@ -1,47 +1,102 @@
-public class Cards {
-    double total;
+import java.util.*;
+
+public class Cards implements Comparable<Cards> {
     private int[] cardNumbers;
+    private int bid;
+    private HashMap<Integer, Integer> frequencyMap;
 
-    public Cards(int[] cards){
+    private static int fiveOfAKindCount = 0;
+    private static int fourOfAKindCount = 0;
+    private static int fullHouseCount = 0;
+    private static int threeOfAKindCount = 0;
+    private static int twoPairCount = 0;
+    private static int onePairCount = 0;
+    private static int highCardCount = 0;
+    private static int totalBidValue = 0;  // Total calculated bid value
+
+    public Cards(int[] cards, int bid) {
         this.cardNumbers = cards;
-        for(int i : cardNumbers){
-            total += i;
+        this.bid = bid;
+        this.frequencyMap = new HashMap<>();
+
+        for (int num : cardNumbers) {
+            frequencyMap.put(num, frequencyMap.getOrDefault(num, 0) + 1);
         }
+
+        classifyHand();
     }
 
-    public int numOfFiveKind() {
-        int counter = 0;
-       int [] temp = {cardNumbers[1],cardNumbers[1],cardNumbers[1],cardNumbers[1],cardNumbers[1]};
-        for (int i = 0; i < cardNumbers.length; i++){
-            if(temp[i] == cardNumbers[i]){
-                counter++;
+    private void classifyHand() {
+        int pairCount = 0;
+        boolean hasThree = false;
+
+        for (int count : frequencyMap.values()) {
+            if (count == 5) {
+                fiveOfAKindCount++;
+                return;
+            } else if (count == 4) {
+                fourOfAKindCount++;
+                return;
+            } else if (count == 3) {
+                hasThree = true;
+            } else if (count == 2) {
+                pairCount++;
             }
         }
-        if (counter == 5){
-            return 1;
-        }
-        else{
-            return 0;
+
+        if (hasThree && pairCount == 1) {
+            fullHouseCount++;
+        } else if (hasThree) {
+            threeOfAKindCount++;
+        } else if (pairCount == 2) {
+            twoPairCount++;
+        } else if (pairCount == 1) {
+            onePairCount++;
+        } else {
+            highCardCount++;
         }
     }
 
+    public int getHandRank() {
+        if (frequencyMap.containsValue(5)) return 7;
+        if (frequencyMap.containsValue(4)) return 6;
+        if (frequencyMap.containsValue(3) && frequencyMap.containsValue(2)) return 5;
+        if (frequencyMap.containsValue(3)) return 4;
+        if (Collections.frequency(frequencyMap.values(), 2) == 2) return 3;
+        if (frequencyMap.containsValue(2)) return 2;
+        return 1;
+    }
 
-    public int numOfFourKind(){
-        int counter = 0;
-        int [] temp = {cardNumbers[1],cardNumbers[1],cardNumbers[1],cardNumbers[1],cardNumbers[1]};
-        for (int i = 0; i < cardNumbers.length; i++){
-            if(temp[i] == cardNumbers[i]){
-                counter++;
+
+    public int compareTo(Cards other) {
+        int rankComparison = Integer.compare(this.getHandRank(), other.getHandRank());
+        if (rankComparison != 0) {
+            return rankComparison;
+        }
+
+        for (int i = 0; i < this.cardNumbers.length; i++) {
+            int cardComparison = Integer.compare(this.cardNumbers[i], other.cardNumbers[i]);
+            if (cardComparison != 0) {
+                return cardComparison;
             }
         }
-        if (counter == 5){
-            return 1;
-        }
-        else{
-            return 0;
-        }
-    }
+        return 0;
     }
 
+    public int getBidValue(int rank) {
+        int bidValue = this.bid * rank;
+        totalBidValue += bidValue;
+        return bidValue;
+    }
 
+    public static String getStatistics() {
+        return "Number of five of a kind hands: " + fiveOfAKindCount + "\n" +
+                "Number of full house hands: " + fullHouseCount + "\n" +
+                "Number of four of a kind hands: " + fourOfAKindCount + "\n" +
+                "Number of three of a kind hands: " + threeOfAKindCount + "\n" +
+                "Number of two pair hands: " + twoPairCount + "\n" +
+                "Number of one pair hands: " + onePairCount + "\n" +
+                "Number of high card hands: " + highCardCount + "\n" +
+                "Total Bid Value: " + totalBidValue;
+    }
 }
